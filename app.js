@@ -53,7 +53,8 @@ app.use('/profileEdit', profileEditRouter); //내정보 편집
 app.use('/chatList',chatListRouter); // 채팅 목록
 app.use('/environ', environRouter); //내 주변 
 app.use('/chat',chatRouter); //  채팅 하기 
-
+//var testRouter = require('./routes/dbConnection.test');
+//app.use('/test', testRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
