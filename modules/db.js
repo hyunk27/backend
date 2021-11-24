@@ -1,10 +1,10 @@
 
 const mysql = require('mysql');
 const connection = mysql.createPool({
-    host: "165.132.105.26", 
-    user: "team05",
-    password: "final05", // 이전에 입력했던 비밀번호
-    database: "database05", // 이전에 입력했던 데이터베이스 명
+    host: process.env.DB_HOST || "165.132.105.26",
+    user: process.env.DB_USER || "team05",
+    password: process.env.DB_PASSWORD || "final05", // 이전에 입력했던 비밀번호
+    database: process.env.DB_NAME || "database05", // 이전에 입력했던 데이터베이스 명
     multipleStatements: true,
     connectionLimit: 1000,
 });
