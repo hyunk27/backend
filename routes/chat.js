@@ -3,7 +3,6 @@ const router = express.Router();
 const { query } = require('../modules/db');
 const { verifyMiddleWare } = require('../modules/jwt');
 
-socketRouter;
 
 router.get('/', function(req, res, next) {
   res.render('index', { title: 'chat' });
