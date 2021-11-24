@@ -1,12 +1,7 @@
-var express = require('express');
-var router = express.Router();
+const express = require('express');
+const router = express.Router();
 const { query } = require('../modules/db');
 const { sign, verifyMiddleWare } = require('../modules/jwt');
-
-/* GET user listing. */
-router.get('/', function(req, res, next) {
-  res.send('respond with a resource');
-});
 
 router.post('/signIn', async (req, res, next) => {
   const { id, password } = req.body;
@@ -29,7 +24,7 @@ router.post('/signIn', async (req, res, next) => {
   } else {
     res.json({
       success: false,
-      errorMessage: '아이디 또는 비밀번호가 잘못 입력 되었습니다.'
+      errorMessage: 'Incorrect id or password'
     });
   }
 });
@@ -37,15 +32,110 @@ router.post('/signIn', async (req, res, next) => {
 router.get('/whoAmI', verifyMiddleWare, (req, res, next) => {
   const { id, name } = req.decoded;
 
-  res.json({
-    success: id ? true : false,
-    id,
-    name
-  });
+  if (id) {
+    res.json({
+      success: true,
+      id,
+      name,
+    });
+  } else {
+    res.json({
+      success: false,
+      errorMesage: 'Authentication is required'
+    });
+  }
+});
+
+router.get('/friends', verifyMiddleWare, async (req, res, next) => {
+  const { id } = req.decoded;
+
+  if (id) {
+    const friends = (await query(`SELECT id, name FROM users where user_id in (SELECT to_id FROM friends WHERE from_id in (SELECT user_id FROM users WHERE id = '${id}'))`));
+
+    res.json({
+      success: true,
+      friends
+    });
+  } else {
+    res.json({
+      success: false,
+      errorMessage: 'Authentication is required'
+    });
+  }
+});
+
+router.post('/addFriends', verifyMiddleWare, async (req, res, next) => {
+  const { id } = req.decoded;
+  const { friend_id } = req.body;
+
+  if (id) {
+    if (friend_id) {
+      const friends_array = await query(`SELECT * FROM friends WHERE (from_id, 
+        to_id) in (SELECT u1.user_id, u2.user_id from users u1, users u2 WHERE u1.id = '${id}' and u2.id = '${friend_id}');`);
+
+      if (friends_array.length > 0) {
+        res.json({
+          success: false,
+          errorMessage: 'already exists!'
+        });
+      } else {
+        await query(`INSERT INTO friends(from_id, to_id) (SELECT u1.user_id, u2.user_id from users u1, users u2 WHERE u1.id = '${id}' and u2.id = '${friend_id}');`);
+
+        res.json({
+          success: true,
+        });
+      }
+    } else {
+      res.json({
+        success: false,
+        errorMessage: 'no friend_id'
+      });
+    }
+  } else {
+    res.json({
+      success: false,
+      errorMessage: 'Authentication is required'
+    });
+  }
+});
+
+router.post('/removeFriends', verifyMiddleWare, async (req, res, next) => {
+  const { id } = req.decoded;
+  const { friend_id } = req.body;
+
+  if (id) {
+    if (friend_id) {
+      const friends_array = await query(`SELECT * FROM friends WHERE (from_id, 
+        to_id) in (SELECT u1.user_id, u2.user_id from users u1, users u2 WHERE u1.id = '${id}' and u2.id = '${friend_id}');`);
+
+      if (friends_array.length === 0) {
+        res.json({
+          success: false,
+          errorMessage: 'Not exists id!'
+        });
+      } else {
+        await query(`DELETE FROM friends where (from_id, to_id) in (SELECT u1.user_id, u2.user_id from users u1, users u2 WHERE u1.id = '${id}' and u2.id = '${friend_id}');`);
+
+        res.json({
+          success: true,
+        });
+      }
+    } else {
+      res.json({
+        success: false,
+        errorMessage: 'no friend_id'
+      });
+    }
+  } else {
+    res.json({
+      success: false,
+      errorMessage: 'Authentication is required'
+    });
+  }
 });
 
 router.get('/signOut', verifyMiddleWare, (req, res, next) => {
-  const { id, name } = req.decoded;
+  const { id } = req.decoded;
 
   if (id) {
     res.clearCookie('token').json({
@@ -54,11 +144,10 @@ router.get('/signOut', verifyMiddleWare, (req, res, next) => {
   } else {
     res.json({
       success: false,
-      errorMessage: '토큰이 존재하지 않습니다.'
+      errorMessage: 'Jwt not exists'
     })
   }
 });
-
 
 router.post('/signUp', async (req, res, next) => {
   const { id, password, name } = req.body;
@@ -69,12 +158,12 @@ router.post('/signUp', async (req, res, next) => {
   if (!id_regex.test(id)) {
     res.json({
       success: false,
-      errorMessage: '유효하지 않은 아이디입니다.'
+      errorMessage: 'Unvalid id'
     });
   } else if (!name_regex.test(name)) {
     res.json({
       success: false,
-      errorMessage: '유효하지 않은 이름입니다.'
+      errorMessage: 'Unvalid name'
     });
   } else { // 통과 O
     // 중복 확인
@@ -83,7 +172,7 @@ router.post('/signUp', async (req, res, next) => {
     if (queryResult.length > 0) {
       res.json({
         success: false,
-        errorMessage: '이미 존재하는 아이디입니다.'
+        errorMessage: 'Duplicate id'
       });
     } else {
       await query(`INSERT INTO users(id, password, name) VALUES('${id}', '${password}', '${name}')`);

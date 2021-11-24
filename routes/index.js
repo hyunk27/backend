@@ -1,9 +1,12 @@
-var express = require('express');
-var router = express.Router();
+const express = require('express');
+const router = express.Router();
+const fs = require('fs');
 
-/* GET home page. */
-router.get('/', function(req, res, next) {
-  res.render('index', { title: 'Express' });
+fs.readdirSync('./routes').forEach(filename => {
+  if (!['index.js', 'socket.js'].includes(filename) && filename.endsWith('.js')) {
+    const name = filename.replace('.js', '');
+    router.use(`/${name}`, require(`./${name}`));
+  }
 });
 
 module.exports = router;
