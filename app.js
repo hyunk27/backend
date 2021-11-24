@@ -24,11 +24,13 @@ const app = express();
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');
 
-/* 이 코드가 들어가면 에러가 납니다. 프론트엔드랑 연결할 때 이게 필요한 것 같은데, 일단 주석으로 처리해놓겠습니다. 
+// 이 코드가 들어가면 에러가 납니다. 프론트엔드랑 연결할 때 이게 필요한 것 같은데, 일단 주석으로 처리해놓겠습니다. 
+
+/*
 app.use(cors({
   credentials: true,
   origin: function(origin, callback) {
-    if (['http://localhost:8080'].indexOf(origin) !== -1) {
+    if (['http://localhost:3000'].indexOf(origin) !== -1) { // 8080임 
       callback(null, true)
     } else {
       callback(new Error('Not allowed by CORS'))
