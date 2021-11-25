@@ -25,7 +25,7 @@ const findSocketById = (io, id) => {
 
 
 module.exports = io => {
-	io.on('connection', socket => {
+	io.on('connection', socket => { //웹소켓 연결 시 
 		const { id, name } = getIdAndName(socket);
 
 		if (id) {
@@ -39,22 +39,45 @@ module.exports = io => {
 			socket.disconnect();
 		}
 
-		socket.on('CHAT_MESSAGE', async msg => {
+		socket.on('CHAT_MESSAGE', async msg => { // 클라이언트로부터 메세지 수신 시 
 			const targetSockets = findSocketById(io, msg.targetId);
 
 			await query(`INSERT INTO chatDatas(from_id, to_id, message, created_at) SELECT f.user_id, t.user_id, '${msg.message}', '${msg.created_at}' FROM users f, users t WHERE f.id = '${socket.user_id}' and t.id = '${msg.targetId}';`)
 
 			if (targetSockets.length > 0) {
-				targetSockets.forEach(soc => soc.emit('CHAT_MESSAGE', {
+				targetSockets.forEach(soc => soc.emit('CHAT_MESSAGE', { // emit: 이벤트 발생 
 					message: msg.message,
 					from_id: socket.user_id,
 					from_name: socket.name,
-					created_at: msg.created_at
+					created_at: msg.created_at // 날짜 
 				}));
 			}
 		});
 
-		socket.on("disconnect", () => {0
+		socket.on('JOIN_ROOM', (num, name) => { // 새로 방 만들 때 
+			socket.join(room[num], () => {
+			  console.log(name + ' join a ' + room[num]);
+			  io.to(room[num]).emit('joinRoom', num, name); // notification(알림) to people 
+			});
+		  });
+
+		socket.on('LEAVE_F', (num, name) => { // 나가기는 구현 필요 x 
+			socket.leave(room[num], () => {
+			  console.log(name + ' leave a ' + room[num]);
+			  io.to(room[num]).emit('leaveRoom', num, name);
+			});
+		  });
+		  
+		  socket.on('READ_MESSAGE',is_read => {
+			socket.leave(room[num], () => {
+			  console.log(name + ' leave a ' + room[num]);
+			  io.to(room[num]).emit('leaveRoom', num, name);
+			});
+		  });
+
+
+
+		socket.on("disconnect", () => {//연결 종료시 
 			if (socket.user_id) {
 				socket.leave('online');
 				updateOnlineList(io, 'online');
