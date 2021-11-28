@@ -27,7 +27,7 @@ router.get('/list', verifyMiddleWare, async (req, res, next) => {
   }
 });
 
-router.get('/chatData/:targetId', verifyMiddleWare, async (req, res, next) => {
+router.get('/chatData/:targetId', verifyMiddleWare, async (req, res, next) => { // 방에 들어오면 말하는 것 같다. 읽기도 처리해줘야할듯. 
   const { id } = req.decoded;
   const { targetId }= req.params;
 
