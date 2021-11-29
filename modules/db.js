@@ -7,6 +7,7 @@ const connection = mysql.createPool({
     database: process.env.DB_NAME || "database05", // 이전에 입력했던 데이터베이스 명
     multipleStatements: true,
     connectionLimit: 1000,
+    dateStrings: "date",
 });
 
 exports.query = query => new Promise((resolve, reject) => {
