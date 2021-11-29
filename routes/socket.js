@@ -10,7 +10,7 @@ const updateOnlineList = (io, roomName) => { //roomName이 online임. online인�
 		name: io.sockets.sockets.get(socket_id).name,
 	})) : [];
 
-	// notification(알림) to people //online접속된 사람들에게 누가 새로 접속했다고 알림. 이걸.. 알려줘야하나... 알리지 말자. 
+	// notification(알림) to people //online접속된 사람들에게 누가 새로 접속했다고 알림. 일단 알리지 않는 것으로 보냅니다.
 	//io.to(roomName).emit('UPDATE_ONLINE_USERS', roomPeople);
 }
 
