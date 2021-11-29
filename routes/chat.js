@@ -48,17 +48,17 @@ const deleteRendezvous = async (id,targetId,time) => {
   const targetSockets = findSocketById(io,targetId); 
   if (targetSockets.length > 0) {
       targetSockets.forEach(soc => soc.emit('EXPIRE_MESSAGE', { // emit: 보낸이, 받는이 모두에게 랑데부 메세지 삭제 알림. 
-      sender_id = id,
-      receiver_id = targetId,
-      time = time
+      sender_id : id,
+      receiver_id : targetId,
+      time : time
     }));
   }
   const targetSockets2 = findSocketById(io,id); 
   if (targetSockets2.length > 0) {
       targetSockets2.forEach(soc => soc.emit('EXPIRE_MESSAGE', { // emit: 보낸이, 받는이 모두에게 랑데부 메세지 삭제 알림. 
-      sender_id = id,
-      receiver_id = targetId,
-      time = time
+      sender_id : id,
+      receiver_id : targetId,
+      time: time
     }));
   }
 }
