@@ -15,7 +15,7 @@ const updateOnlineList = (io, roomName) => { //roomName이 online임. online인�
 }
 
 //io.sockets.sockets가 현재 존재하는 모든 소켓을 의미하는 듯 하다. 
-//온라인이든 아니든 일단 찾아준다. 부재시(로그아웃중)에도 채팅이 보내질 수 있음. 그러나 front에서 unsubscribe.
+//온라인이든 아니든 일단 찾아준다. 부재시(로그아웃중)에도 채팅이 보내질 수 있음. 그러나 front에서 unsubscribe.무시함.
 const findSocketById = (io, id) => {
 	const sockets = [];
 	for (let socket of io.sockets.sockets.values()) {

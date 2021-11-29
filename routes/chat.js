@@ -161,7 +161,7 @@ router.post('/rendezvous/:id', verifyMiddleWare, async (req, res, next)=>{
     const queryResultPlace = await query(`SELECT place FROM user WHERE id = '${id}'`) 
     const rendezvousPlace = queryResultPlace[0].place;
     let expiredTime = sqlToJsDate(time);
-    expiredTime.setHours(expiredTime.getHours()+9) // 왜인진 모르겠는데 시간이 다시 올라가야함. 
+    expiredTime.setHours(expiredTime.getHours()+9) // 왜인진 모르겠는데 시간이 다시 올라가야합니다. 시간이 +-9시간 오차가 발생하면 말씀해주세요.  
     expiredTime.setMinutes(expiredTime.getMinutes()+rendezvous_time)
     const expiredSqlTime = expiredTime.toISOString().slice(0, 19).replace('T', ' ');
     const queryResult = await query(`SELECT * from user where id = '${targetId}' and place = '${rendezvousPlace}'`); 
