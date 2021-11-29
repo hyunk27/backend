@@ -5,13 +5,6 @@ const { verifyMiddleWare } = require('../modules/jwt');
 var CryptoJS = require("crypto-js");
 var secretKey = 'secret key';
 
-// encrypt
-var encrypted = CryptoJS.AES.encrypt(JSON.stringify(data), secretKey).toString();
-
-// decrypt
-var bytes = CryptoJS.AES.decrypt(encrypted, secretKey);
-var decrypted = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
-
 const findSocketById = (io, id) => {
 	const sockets = [];
 	for (let socket of io.sockets.sockets.values()) {
@@ -29,24 +22,15 @@ const findRoom = async (senderId, receiverId) => {
 }
 
 function sqlToJsDate(sqlDate){
-    //sqlDate in SQL DATETIME format ("yyyy-mm-dd hh:mm:ss.ms")
     var sqlDateArr1 = sqlDate.split("-");
-    //format of sqlDateArr1[] = ['yyyy','mm','dd hh:mm:ms']
     var sYear = sqlDateArr1[0];
     var sMonth = (Number(sqlDateArr1[1]) - 1).toString();
     var sqlDateArr2 = sqlDateArr1[2].split(" ");
-    //format of sqlDateArr2[] = ['dd', 'hh:mm:ss.ms']
     var sDay = sqlDateArr2[0];
     var sqlDateArr3 = sqlDateArr2[1].split(":");
-    //format of sqlDateArr3[] = ['hh','mm','ss.ms']
     var sHour = sqlDateArr3[0];
     var sMinute = sqlDateArr3[1];
     var sSecond = sqlDateArr3[2];
-    //var sqlDateArr4 = sqlDateArr3[2].split(".");
-    ////format of sqlDateArr4[] = ['ss','ms']
-    //var sSecond = sqlDateArr4[0];
-    //var sMillisecond = sqlDateArr4[1];
-     
     return new Date(sYear,sMonth,sDay,sHour,sMinute,sSecond);
 }
 
@@ -79,11 +63,9 @@ const deleteRendezvous = async (id,targetId,time) => {
   }
 }
 
-
 router.get('/chatData/:id', verifyMiddleWare, async (req, res, next) => { 
   const { id } = req.decoded;
   const { targetId }= req.params;
-
   if (id) {
     const io = req.app.get('io');
     // 방에 들어오면 front end에서 부를 것으로 예상되어서 read(읽음) 처리해두었습니다. 
