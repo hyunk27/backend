@@ -24,7 +24,7 @@ const app = express();
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');
 
-
+/*
 app.use(cors({
   credentials: true,
   origin: function(origin, callback) {
@@ -35,7 +35,7 @@ app.use(cors({
     }
   }
 }));
-
+*/
 app.use(cors());
 
 app.use(cookieParser());
