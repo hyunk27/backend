@@ -62,7 +62,7 @@ router.get('/logout', verifyMiddleWare, (req, res, next) => {
 });
 
 router.post('/signin', async (req, res, next) => {
-  const { id, password, name } = req.body;
+  const { id, password, name, type } = req.body;
   const id_regex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{4,20}$/; // 4~20자리의 문자 및 숫자 1개 이상씩 사용한 정규식
   const name_regex = /^[가-힣a-zA-z]{3,20}$/;
 
@@ -70,12 +70,12 @@ router.post('/signin', async (req, res, next) => {
   if (!id_regex.test(id)) {
     res.json({
       success: false,
-      errorMessage: 'Unvalid id'
+      errorMessage: 'Invalid id'
     });
   } else if (!name_regex.test(name)) {
     res.json({
       success: false,
-      errorMessage: 'Unvalid name'
+      errorMessage: 'Invalid name'
     });
   } else { // 통과 O
     // 중복 확인
@@ -87,7 +87,7 @@ router.post('/signin', async (req, res, next) => {
         errorMessage: 'Duplicate id'
       });
     } else {
-      await query(`INSERT INTO user(id, password, name) VALUES('${id}', '${password}', '${name}')`);
+      await query(`INSERT INTO user(id, password, name, type) VALUES('${id}', '${password}', '${name}', '${type}')`);
 
       res.json({
         success: true
