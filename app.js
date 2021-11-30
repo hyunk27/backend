@@ -24,18 +24,6 @@ const app = express();
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');
 
-/*
-app.use(cors({
-  credentials: true,
-  origin: function(origin, callback) {
-    if (['http://localhost:8080'].indexOf(origin) !== -1) { 
-      callback(null, true)
-    } else {
-      callback(new Error('Not allowed by CORS'))
-    }
-  }
-}));
-*/
 app.use(cors());
 
 app.use(cookieParser());
