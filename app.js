@@ -37,7 +37,6 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/', indexRouter); // 기본 홈페이지 
 app.use('/user', userRouter); // /users 이런 식으로 들어오면 이 파일 가서 라우터를 찾습니다. 회원가입, 로그인, 로그아웃이 구현되어 있는 것 같습니다. 
 app.use('/friend',friendRouter); //친구 목록, 친구 검색
-app.use('/profileEdit', profileEditRouter); //내정보 편집
 app.use('/chatList',chatListRouter); // 채팅 목록
 app.use('/environ', environRouter); //내 주변 
 app.use('/chat',chatRouter); //  채팅 하기 
