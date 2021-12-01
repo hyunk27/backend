@@ -82,7 +82,7 @@ router.post('/signin', verifyMiddleWare, async (req, res, next) => {
     });
   } else { // 통과 O
     // 중복 확인
-    const queryResult = await query(`SELECT * from users where id = '${id}'`);
+    const queryResult = await query(`SELECT * from user where id = '${id}'`);
 
     if (queryResult.length > 0) {
       res.json({
@@ -102,7 +102,7 @@ router.post('/signin', verifyMiddleWare, async (req, res, next) => {
 
 router.get('/signin/:id', verifyMiddleWare, async (req, res, next) => {
   const {id} = req.decoded;
-  const queryResult = await query(`SELECT * from users where id = '${id}'`);
+  const queryResult = await query(`SELECT * from user where id = '${id}'`);
   if (queryResult.length > 0) {
     res.json({
       status:400,
