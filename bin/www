@@ -36,7 +36,7 @@
  
  socketRouter(require("socket.io")(socket, {
 	 cors: {
-		 origin: "http://localhost:8080",
+		 origin: "*",
 		 methods: ["GET", "POST"],
 		 transports: ['websocket', 'polling'],
 		 credentials: true
