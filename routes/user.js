@@ -46,7 +46,7 @@ router.get('/whoAmI', verifyMiddleWare, (req, res, next) => {
   }
 });
 
-router.patch('/logout', verifyMiddleWare, (req, res, next) => {
+router.patch('/logout', verifyMiddleWare, async (req, res, next) => {
   const {id} = req.decoded;
 
   if (id){
@@ -64,7 +64,7 @@ router.patch('/logout', verifyMiddleWare, (req, res, next) => {
   }
 });
 
-router.post('/signin', async (req, res, next) => {
+router.post('/signin', verifyMiddleWare, async (req, res, next) => {
   const { id, password, name, type } = req.body;
   const id_regex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{4,20}$/; // 4~20자리의 문자 및 숫자 1개 이상씩 사용한 정규식
   const name_regex = /^[가-힣a-zA-z]{3,20}$/;
@@ -100,7 +100,7 @@ router.post('/signin', async (req, res, next) => {
   }
 });
 
-router.get('/signin/:id', verifyMiddleWare, (req, res, next) => {
+router.get('/signin/:id', verifyMiddleWare, async (req, res, next) => {
   const {id} = req.decoded;
   const queryResult = await query(`SELECT * from users where id = '${id}'`);
   if (queryResult.length > 0) {
@@ -116,7 +116,7 @@ router.get('/signin/:id', verifyMiddleWare, (req, res, next) => {
   }
 });
 
-router.delete('/signout', async  (req, res, next) => {
+router.delete('/signout', verifyMiddleWare, async  (req, res, next) => {
   const {id, name} = req.decoded;
   if (id){
     res.json(
@@ -133,7 +133,7 @@ router.delete('/signout', async  (req, res, next) => {
   }
 });
 
-router.patch('/change', verifyMiddleWare, (req, res, next) => { 
+router.patch('/change', verifyMiddleWare, async (req, res, next) => { 
   const {id} = req.decoded;
   const {state_message, place} = req.body;
   const state_message_regex = /^[가-힣a-zA-z]{,20}$/;
