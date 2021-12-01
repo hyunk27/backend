@@ -105,13 +105,13 @@ router.get('/signin/:id', verifyMiddleWare, async (req, res, next) => {
   const queryResult = await query(`SELECT * from users where id = '${id}'`);
   if (queryResult.length > 0) {
     res.json({
-      status: 200,
-      message: '사용가능한 id입니다'
+      status:400,
+      message: '중복된 id입니다'
     });
   } else {
     res.json({
-      status:400,
-      message: '중복된 id입니다'
+      status: 200,
+      message: '사용가능한 id입니다'
     });
   }
 });
