@@ -13,5 +13,8 @@ exports.verifyMiddleWare = (req, res, next) => {
     const { token } = req.cookies;
 
     req.decoded = token ? jwt.verify(token, cryptoKey) : {};
+
+    // todo - 에러 처리 401 (토큰 관련 에러)
+    
     next();
 };

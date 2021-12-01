@@ -64,7 +64,7 @@ router.patch('/logout', verifyMiddleWare, async (req, res, next) => {
   }
 });
 
-router.post('/signin', verifyMiddleWare, async (req, res, next) => {
+router.post('/signin', async (req, res, next) => {
   const { id, password, name, type } = req.body;
   const id_regex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{4,20}$/; // 4~20자리의 문자 및 숫자 1개 이상씩 사용한 정규식
   const name_regex = /^[가-힣a-zA-z]{3,20}$/;
@@ -82,7 +82,7 @@ router.post('/signin', verifyMiddleWare, async (req, res, next) => {
     });
   } else { // 통과 O
     // 중복 확인
-    const queryResult = await query(`SELECT * from users where id = '${id}'`);
+    const queryResult = await query(`SELECT * from user where id = '${id}'`);
 
     if (queryResult.length > 0) {
       res.json({
@@ -102,7 +102,7 @@ router.post('/signin', verifyMiddleWare, async (req, res, next) => {
 
 router.get('/signin/:id', verifyMiddleWare, async (req, res, next) => {
   const {id} = req.decoded;
-  const queryResult = await query(`SELECT * from users where id = '${id}'`);
+  const queryResult = await query(`SELECT * from user where id = '${id}'`);
   if (queryResult.length > 0) {
     res.json({
       status:400,
