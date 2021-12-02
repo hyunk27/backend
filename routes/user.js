@@ -50,7 +50,6 @@ router.patch('/logout', verifyMiddleWare, async (req, res, next) => {
   const {id} = req.decoded;
 
   if (id){
-
     await query(`UPDATE user SET online = 1 where id = '${id}'`)
     res.clearCookie('token').json({
       status: 200,
@@ -67,7 +66,7 @@ router.patch('/logout', verifyMiddleWare, async (req, res, next) => {
 router.post('/signin', async (req, res, next) => {
   const { id, password, name, type } = req.body;
   const id_regex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{4,20}$/; // 4~20자리의 문자 및 숫자 1개 이상씩 사용한 정규식
-  const name_regex = /^[가-힣a-zA-z]{3,20}$/;
+  const name_regex = /^[ㄱ-ㅎ|가-힣|a-z|A-Z]{3,20}$/;
 
   // 아이디 유효성 검사 통과 x
   if (!id_regex.test(id)) {
@@ -79,6 +78,11 @@ router.post('/signin', async (req, res, next) => {
     res.json({
       status: 400,
       message: 'Invalid name'
+    });
+  } else if (password.length == 0){
+    res.json({
+      status: 400,
+      message: 'Enter password'
     });
   } else { // 통과 O
     // 중복 확인
@@ -101,7 +105,7 @@ router.post('/signin', async (req, res, next) => {
 });
 
 router.get('/signin/:id', verifyMiddleWare, async (req, res, next) => {
-  const {id} = req.decoded;
+  const {id} = req.params;
   const queryResult = await query(`SELECT * from user where id = '${id}'`);
   if (queryResult.length > 0) {
     res.json({
@@ -134,9 +138,9 @@ router.delete('/signout', verifyMiddleWare, async  (req, res, next) => {
 });
 
 router.patch('/change', verifyMiddleWare, async (req, res, next) => { 
-  const {id} = req.decoded;
-  const {state_message, place} = req.body;
-  const state_message_regex = /^[가-힣a-zA-z]{,20}$/;
+  const {ierd} = req.decoded;
+  const {id, state_message, place} = req.body;
+  const state_message_regex = /^[ㄱ-ㅎ|가-힣|a-z|A-Z]{1,20}$/;
 
   if (!state_message_regex.test(state_message)){
     res.json({
