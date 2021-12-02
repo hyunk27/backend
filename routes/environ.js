@@ -9,24 +9,24 @@ router.get('/', function(req, res, next) {
   res.render('index', { title: 'environs' });
 });
 
-router.get('/:place', verifyMiddleWare, async (req, res, next) => {
-  try{
-    const {place} = req.params
-    const users = await query(`SELECT * FROM user WHERE place = '${place}'`)
+// router.get('/:place', verifyMiddleWare, async (req, res, next) => {
+//   try{
+//     const {place} = req.params
+//     const users = await query(`SELECT * FROM user WHERE place = '${place}'`)
 
-    if (users.length>0){
-      res.json({
-        status:200,
-        data: users
-      });
-    }
-   } catch (error) {
-      res.json({
-        status:400,
-        message : '사용자 목록 불러오기 실패'
-      });
-    }
+//     if (users.length>0){
+//       res.json({
+//         status:200,
+//         data: users
+//       });
+//     }
+//    } catch (error) {
+//       res.json({
+//         status:400,
+//         message : '사용자 목록 불러오기 실패'
+//       });
+//     }
 
-});
+// });
 
 module.exports = router;
