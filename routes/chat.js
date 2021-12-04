@@ -106,7 +106,7 @@ router.get('/chatData/:id', verifyMiddleWare, async (req, res, next) => {
 //time을 front에서 주실 때 sql의 Datatime로 주신다고 가정함. 보낼때도 sql의 Datatime형식으로 보냄.  
 router.post('/:id', verifyMiddleWare, async (req, res, next) => {
   const { id } = req.decoded;
-  const { targetId }= req.params;
+  const targetId = req.params.id;
   if (id) {
     const io = req.app.get('io');
     const {context, time} = req.body;
@@ -154,7 +154,7 @@ router.post('/:id', verifyMiddleWare, async (req, res, next) => {
 //보내는 순간 place가 같으면 받는 것으로 구현. 
 router.post('/rendezvous/:id', verifyMiddleWare, async (req, res, next)=>{
   const { id } = req.decoded;
-  const { targetId }= req.params;
+  const targetId = req.params.id;
   if (id) {
     const io = req.app.get('io');
     const { context, time, rendezvous_time} = req.body;
@@ -214,7 +214,7 @@ router.post('/rendezvous/:id', verifyMiddleWare, async (req, res, next)=>{
 //read 표시하려고 만듦. clinet는 RESPONSE_MESSAGE 받았을 때, READ 보내줌.
 router.patch('/read/:id', verifyMiddleWare, async (req, res, next)=>{
   const { id } = req.decoded;
-  const { targetId }= req.params;
+  const targetId = req.params.id;
   if (id) {
     const io = req.app.get('io');
 	  await query(`UPDATE message	SET state = 1 where sender_id = '${targetId}' AND receiver_id = '${id}' AND state = 0`); 
