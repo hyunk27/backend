@@ -134,7 +134,6 @@ router.post('/:id', verifyMiddleWare, async (req, res, next) => {
       res.json({
         status: 200,
         message: "채팅 전송 성공",
-        data:messages
       });
 		}
     else{
