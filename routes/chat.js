@@ -65,7 +65,7 @@ const deleteRendezvous = async (id,targetId,time) => {
 
 router.get('/chatData/:id', verifyMiddleWare, async (req, res, next) => { 
   const { id } = req.decoded;
-  const { targetId }= req.params;
+  const targetId = req.params.id;
   if (id) {
     const io = req.app.get('io');
     // 방에 들어오면 front end에서 부를 것으로 예상되어서 read(읽음) 처리해두었습니다. 
