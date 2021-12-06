@@ -138,8 +138,8 @@ router.post('/:id', verifyMiddleWare, async (req, res, next) => {
     }
     else {
       res.json({
-        status: 400,
-        message: "채팅 전송 실패. 타겟 소켓을 찾을 수 없습니다. ",
+        status: 200,
+        message: "채팅 전송을 시도하였으나 타겟 소켓을 찾을 수 없습니다. 채팅이 DB에만 저장되었습니다",
       });
     }
   } else {
@@ -190,16 +190,16 @@ router.post('/rendezvous/:id', verifyMiddleWare, async (req, res, next) => {
       }
       else {
         res.json({
-          status: 400,
-          message: "채팅 전송 실패. 타겟 소켓을 찾을 수 없습니다. ",
+          status: 200,
+          message: "채팅 전송을 시도하였으나 타겟 소켓을 찾을 수 없습니다. 채팅이 DB에만 저장되었습니다. ",
         });
       }
     }
     else { //공간이 달라서 랑데부메세지가 전송되지 않았음을 알림. 전송이 안되면 db에 일단 안올리는 것으로 구현.
       //다시 채팅방 들어오면 아예 보냈던 기록조차 보이지 않음. 
       res.json({
-        status: 400,
-        message: "랑데부 공간 차이로 메세지 전송 실패",
+        status: 200,
+        message: "랑데부 공간 차이로 메세지가 전송되지 않았습니다.",
       });
     }
   } else {
@@ -217,7 +217,7 @@ router.patch('/read/:id', verifyMiddleWare, async (req, res, next) => {
   if (id) {
     const io = req.app.get('io');
     await query(`UPDATE message	SET state = 1 where sender_id = '${targetId}' AND receiver_id = '${id}' AND state = 0`);
-    const targetSockets = findSocketById(io, msg.targetId);
+    const targetSockets = findSocketById(io, targetId);
     if (targetSockets.length > 0) {
       targetSockets.forEach(soc => soc.emit('READ_MESSAGE', { // emit: targetId야, read_id가 너가 보낸 메세지 읽었대. 
         read_id: id,
