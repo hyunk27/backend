@@ -61,7 +61,7 @@ router.get('/friend/add/:id', verifyMiddleWare, async (req, res, next) => {
   }
 });
 
-// 친구 검색
+// 친구 검색(가장 위에 있었던 라우터인데 와일드카드가 list를 받아서 밑으로 내려놓았습니다!)
 router.get('/friend/:id_name', verifyMiddleWare, async (req, res, next) => {
   try{
     const {id_name}= req.params;
