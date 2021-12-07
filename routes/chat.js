@@ -89,7 +89,7 @@ router.get('/chatData/:id', verifyMiddleWare, async (req, res, next) => {
     for (let i = 0; i < messages.length; i++) {
       let encryptedContext = messages[i].context;
       var bytes = CryptoJS.AES.decrypt(encryptedContext, secretKey);
-      messages[i].context = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
+      messages[i].context = bytes.toString(CryptoJS.enc.Utf8);
     }
     if (messages === 0) {
       await query(`INSERT INTO room(user1_id,user2_id) VALUES( '${id}', '${targetId}');`);
@@ -200,12 +200,12 @@ router.post('/:id', verifyMiddleWare, async (req, res, next) => {
   const targetId = req.params.id;
   if (id) {
     const io = req.app.get('io');
-    const { context, time } = req.body;
+    const { context } = req.body;
+    const time = new Date().toISOString().slice(0, 19).replace('T', ' ');
     const targetSockets = findSocketById(io, targetId);
     const roomId = await findRoom(id, targetId);
-    //const sql_time = time.toISOString().slice(0, 19).replace('T', ' ');
 
-    var encrypted = CryptoJS.AES.encrypt(JSON.stringify(context), secretKey).toString();
+    const encrypted = CryptoJS.AES.encrypt(context, secretKey).toString();
 
     await query(`INSERT INTO message(sender_id, receiver_id, context, time, room_id) 
     SELECT f.id, t.id, '${encrypted}','${time}', '${roomId}'
