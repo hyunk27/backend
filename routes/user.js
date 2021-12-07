@@ -7,13 +7,25 @@ var secretKey = 'secret key';
 
 router.post('/login', async (req, res, next) => {
   const { id, password } = req.body;
-  var encrypted = CryptoJS.AES.encrypt(JSON.stringify(password), secretKey).toString();
-  const queryResult = await query(`SELECT * from user where id = '${id}' and password = '${encrypted}';`);
+  
+  const get_password = await query(`SELECT * from user where id = '${id}';`);
+  let decrpyted = CryptoJS.AES.decrypt(get_password[0].password, secretKey);
+  var password_dec = JSON.parse(decrpyted.toString(CryptoJS.enc.Utf8));
 
-  if (queryResult.length > 0) {
+  if (get_password.length ==0) {
+    res.json({
+      statsu: 400,
+      message: 'Incorrect ID'
+    });
+  } else if (password != password_dec) {
+    res.json({
+      status: 400,
+      message: 'Incorrect password'
+    });
+  } else {
     const jwt = sign({
       id,
-      name: queryResult[0].name
+      name: get_password[0].name
     });
     res.cookie('token', jwt, {
       httpOnly: true,
@@ -21,12 +33,7 @@ router.post('/login', async (req, res, next) => {
     }).json({
       status: 200,
       id,
-      name: queryResult[0].name
-    });
-  } else {
-    res.json({
-      status: 400,
-      message: 'Incorrect id or password'
+      name: get_password[0].name
     });
   }
 });
