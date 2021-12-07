@@ -133,12 +133,12 @@ router.get('/signin/:id', verifyMiddleWare, async (req, res, next) => {
 router.delete('/signout', verifyMiddleWare, async  (req, res, next) => {
   const {id, name} = req.decoded;
   if (id){
+    await query(`DELETE FROM user where id = '${id}'`);
     res.json(
       {
         status:200,
         message: '회원탈퇴되었습니다'
       })
-    await query(`DELETE FROM user where id = '${id}'`);
   } else {
     res.json({
       status:400,
@@ -148,8 +148,8 @@ router.delete('/signout', verifyMiddleWare, async  (req, res, next) => {
 });
 
 router.patch('/change', verifyMiddleWare, async (req, res, next) => { 
-  const {ierd} = req.decoded;
-  const {id, state_message, place} = req.body;
+  const {id} = req.decoded;
+  const {state_message, place} = req.body;
   const state_message_regex = /^[ㄱ-ㅎ|가-힣|a-z|A-Z]{1,20}$/;
 
   if (!state_message_regex.test(state_message)){
