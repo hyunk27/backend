@@ -13,7 +13,7 @@ router.get('/', function(req, res, next) {
 
 
 // 친구 목록 검색
-router.get('/friend/list', verifyMiddleWare, async (req, res, next) => {
+router.get('/list', verifyMiddleWare, async (req, res, next) => {
   const {id} = req.decoded;
         
   const me = await query(`SELECT * FROM user WHERE id = '${id}'`);
@@ -36,7 +36,7 @@ router.get('/friend/list', verifyMiddleWare, async (req, res, next) => {
 });
 
 // 친구 추가
-router.get('/friend/add/:id', verifyMiddleWare, async (req, res, next) => {
+router.get('/add/:id', verifyMiddleWare, async (req, res, next) => {
   const {id} = req.decoded;
   const {targetId}= req.params;
 
@@ -62,7 +62,7 @@ router.get('/friend/add/:id', verifyMiddleWare, async (req, res, next) => {
 });
 
 // 친구 검색(가장 위에 있었던 라우터인데 와일드카드가 list를 받아서 밑으로 내려놓았습니다!)
-router.get('/friend/:id_name', verifyMiddleWare, async (req, res, next) => {
+router.get('/:id_name', verifyMiddleWare, async (req, res, next) => {
   try{
     const {id_name}= req.params;
         
@@ -90,7 +90,7 @@ router.get('/friend/:id_name', verifyMiddleWare, async (req, res, next) => {
 
 
 // 친구 삭제 
-router.delete('/friend/:id', verifyMiddleWare, async (req, res, next) => {
+router.delete('/:id', verifyMiddleWare, async (req, res, next) => {
   const {id} = req.decoded;
   const {targetId}= req.params;
 
