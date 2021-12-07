@@ -40,7 +40,7 @@ router.get('/add/:id', verifyMiddleWare, async (req, res, next) => {
   const {id} = req.decoded;
   const {targetId}= req.params;
 
-  const queryResult = await query(`INSERT INTO friend('${id}', '${targetId}')`);          
+  const queryResult = await query(`INSERT INTO friend VALUES('${id}', '${targetId}')`);          
   const user = await query(`SELECT * FROM friend WHERE targetId = '${id}'`);
 
   console.log(queryResult);
