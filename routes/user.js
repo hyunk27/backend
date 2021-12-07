@@ -28,7 +28,7 @@ router.post('/login', async (req, res, next) => {
       name: get_password[0].name
     });
     res.cookie('token', jwt, {
-      httpOnly: true,
+      httpOnly: false,
       expires: new Date( Date.now() + 60 * 60 * 1000 * 24 * 7) // 7일 후 만료
     }).json({
       status: 200,
