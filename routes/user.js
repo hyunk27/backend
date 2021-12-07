@@ -133,12 +133,12 @@ router.get('/signin/:id', verifyMiddleWare, async (req, res, next) => {
 router.delete('/signout', verifyMiddleWare, async  (req, res, next) => {
   const {id, name} = req.decoded;
   if (id){
+    await query(`DELETE FROM user where id = '${id}'`);
     res.json(
       {
         status:200,
         message: '회원탈퇴되었습니다'
       })
-    await query(`DELETE FROM user where id = '${id}'`);
   } else {
     res.json({
       status:400,
