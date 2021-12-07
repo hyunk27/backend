@@ -6,15 +6,63 @@ const { verifyMiddleWare } = require('../modules/jwt');
 var CryptoJS = require("crypto-js");
 var secretKey = 'secret key';
 
-
 /* GET /friend/가 들어왔을 때 */
 router.get('/', function(req, res, next) {
   res.render('index', { title: 'friends' });
 });
 
 
+// 친구 목록 검색
+router.get('/list', verifyMiddleWare, async (req, res, next) => {
+  const {id} = req.decoded;
+        
+  const me = await query(`SELECT * FROM user WHERE id = '${id}'`);
+  const users = await query(`SELECT * FROM user WHERE id IN (SELECT friend_id FROM friend WHERE id = '${id}')`);
+
+  try {
+    res.json({
+      status: 200,
+      message: '친구 검색 성공',                   
+      data: { user_self: me, users: users }             
+    });
+  } catch (error) {
+    res.json({
+      status:400,
+      message: '친구 검색 실패',
+      error
+    });
+  }
+  
+});
+
+// 친구 추가
+router.get('/add/:id', verifyMiddleWare, async (req, res, next) => {
+  const {id} = req.decoded;
+  const {targetId}= req.params;
+
+  const queryResult = await query(`INSERT INTO friend('${id}', '${targetId}')`);          
+  const user = await query(`SELECT * FROM friend WHERE targetId = '${id}'`);
+
+  console.log(queryResult);
+  console.log(user);
+
+  try {
+    res.json({
+      status: 200,
+      message: '친구 추가 성공',
+      data: user              
+    });
+  } catch (error) {
+    res.json({
+      status:400,
+      message: '친구 추가 실패',
+      error
+    });
+  }
+});
+
 // 친구 검색
-router.get('/friend/:id_name', verifyMiddleWare, async (req, res, next) => {
+router.get('/:id_name', verifyMiddleWare, async (req, res, next) => {
   try{
     const {id_name}= req.params;
         
@@ -40,57 +88,9 @@ router.get('/friend/:id_name', verifyMiddleWare, async (req, res, next) => {
   
 });
 
-// 친구 목록 검색
-router.get('/friend/list', verifyMiddleWare, async (req, res, next) => {
-  const {id} = req.decoded;
-        
-  const me = await query(`SELECT * FROM user WHERE id = '${id}'`);
-  const users = await query(`SELECT * FROM user WHERE id IN (SELECT friend_id FROM friend WHERE id = '${id}')`);
-
-  try {
-    res.json({
-      status: 200,
-      message: '친구 검색 성공',                   
-      data: { user_self: me, users: users }             
-    });
-  } catch (error) {
-    res.json({
-      status:400,
-      message: '친구 검색 실패',
-      error
-    });
-  }
-  
-});
-
-// 친구 추가
-router.get('/friend/add/:id', verifyMiddleWare, async (req, res, next) => {
-  const {id} = req.decoded;
-  const {targetId}= req.params;
-
-  const queryResult = await query(`INSERT INTO friend('${id}', '${targetId}')`);          
-  const user = await query(`SELECT * FROM friend WHERE targetId = '${id}'`);
-
-  console.log(queryResult);
-  console.log(user);
-
-  try {
-    res.json({
-      status: 200,
-      message: '친구 추가 성공',
-      data: user              
-    });
-  } catch (error) {
-    res.json({
-      status:400,
-      message: '친구 추가 실패',
-      error
-    });
-  }
-});
 
 // 친구 삭제 
-router.delete('/friend/:id', verifyMiddleWare, async (req, res, next) => {
+router.delete('/:id', verifyMiddleWare, async (req, res, next) => {
   const {id} = req.decoded;
   const {targetId}= req.params;
 
