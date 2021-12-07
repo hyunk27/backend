@@ -107,52 +107,7 @@ router.get('/chatData/:id', verifyMiddleWare, async (req, res, next) => {
   }
 });
 
-//time을 front에서 주실 때 sql의 Datatime로 주신다고 가정함. 보낼때도 sql의 Datatime형식으로 보냄.  
-router.post('/:id', verifyMiddleWare, async (req, res, next) => {
-  const { id } = req.decoded;
-  const targetId = req.params.id;
-  if (id) {
-    const io = req.app.get('io');
-    const { context, time } = req.body;
-    const targetSockets = findSocketById(io, targetId);
-    const roomId = await findRoom(id, targetId);
-    //const sql_time = time.toISOString().slice(0, 19).replace('T', ' ');
 
-    var encrypted = CryptoJS.AES.encrypt(JSON.stringify(context), secretKey).toString();
-
-    await query(`INSERT INTO message(sender_id, receiver_id, context, time, room_id) 
-    SELECT f.id, t.id, '${encrypted}','${time}', '${roomId}'
-    FROM user f, user t WHERE f.id = '${id}' and t.id = '${targetId}';`)
-
-    const senderQuery = await query(`SELECT name FROM user WHERE id = '${id}'`);
-    const senderName = senderQuery[0].name;
-
-    if (targetSockets.length > 0) {
-      targetSockets.forEach(soc => soc.emit('RESPONSE_MESSAGE', { // emit: 이벤트 발생  
-        context: context,
-        from_id: id,
-        from_name: senderName,
-        time: time,
-        is_rendezvous: false
-      }));
-      res.json({
-        status: 200,
-        message: "채팅 전송 성공",
-      });
-    }
-    else {
-      res.json({
-        status: 200,
-        message: "채팅 전송을 시도하였으나 타겟 소켓을 찾을 수 없습니다. 채팅이 DB에만 저장되었습니다",
-      });
-    }
-  } else {
-    res.json({
-      status: 401,
-      message: "적합하지 않은 토큰입니다"
-    });
-  }
-});
 
 //보내는 순간 place가 같으면 받는 것으로 구현. 
 router.post('/rendezvous/:id', verifyMiddleWare, async (req, res, next) => {
@@ -231,6 +186,53 @@ router.patch('/read/:id', verifyMiddleWare, async (req, res, next) => {
       status: 200,
       message: "읽음 반영 성공"
     });
+  } else {
+    res.json({
+      status: 401,
+      message: "적합하지 않은 토큰입니다"
+    });
+  }
+});
+
+//일반 채팅 전송 //time을 front에서 주실 때 sql의 Datatime로 주신다고 가정함. 보낼때도 sql의 Datatime형식으로 보냄.  
+router.post('/:id', verifyMiddleWare, async (req, res, next) => {
+  const { id } = req.decoded;
+  const targetId = req.params.id;
+  if (id) {
+    const io = req.app.get('io');
+    const { context, time } = req.body;
+    const targetSockets = findSocketById(io, targetId);
+    const roomId = await findRoom(id, targetId);
+    //const sql_time = time.toISOString().slice(0, 19).replace('T', ' ');
+
+    var encrypted = CryptoJS.AES.encrypt(JSON.stringify(context), secretKey).toString();
+
+    await query(`INSERT INTO message(sender_id, receiver_id, context, time, room_id) 
+    SELECT f.id, t.id, '${encrypted}','${time}', '${roomId}'
+    FROM user f, user t WHERE f.id = '${id}' and t.id = '${targetId}';`)
+
+    const senderQuery = await query(`SELECT name FROM user WHERE id = '${id}'`);
+    const senderName = senderQuery[0].name;
+
+    if (targetSockets.length > 0) {
+      targetSockets.forEach(soc => soc.emit('RESPONSE_MESSAGE', { // emit: 이벤트 발생  
+        context: context,
+        from_id: id,
+        from_name: senderName,
+        time: time,
+        is_rendezvous: false
+      }));
+      res.json({
+        status: 200,
+        message: "채팅 전송 성공",
+      });
+    }
+    else {
+      res.json({
+        status: 200,
+        message: "채팅 전송을 시도하였으나 타겟 소켓을 찾을 수 없습니다. 채팅이 DB에만 저장되었습니다",
+      });
+    }
   } else {
     res.json({
       status: 401,
