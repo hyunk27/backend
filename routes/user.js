@@ -2,11 +2,13 @@ const express = require('express');
 const router = express.Router();
 const { query } = require('../modules/db');
 const { sign, verifyMiddleWare } = require('../modules/jwt');
+var CryptoJS = require("crypto-js");
+var secretKey = 'secret key';
 
 router.post('/login', async (req, res, next) => {
   const { id, password } = req.body;
-
-  const queryResult = await query(`SELECT * from user where id = '${id}' and password = '${password}';`);
+  var encrypted = CryptoJS.AES.encrypt(JSON.stringify(password), secretKey).toString();
+  const queryResult = await query(`SELECT * from user where id = '${id}' and password = '${encrypted}';`);
 
   if (queryResult.length > 0) {
     const jwt = sign({
@@ -94,7 +96,8 @@ router.post('/signin', async (req, res, next) => {
         message: 'Duplicate id'
       });
     } else {
-      await query(`INSERT INTO user(id, password, name, type) VALUES('${id}', '${password}', '${name}', '${type}')`);
+      var encrypted = CryptoJS.AES.encrypt(JSON.stringify(password), secretKey).toString();
+      await query(`INSERT INTO user(id, password, name, type) VALUES('${id}', '${encrypted}', '${name}', '${type}')`);
 
       res.json({
         status:200,
