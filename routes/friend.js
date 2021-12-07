@@ -6,12 +6,12 @@ const { verifyMiddleWare } = require('../modules/jwt');
 var CryptoJS = require("crypto-js");
 var secretKey = 'secret key';
 
-
-/* GET /friend/가 들어왔을 때 */
+/*
+//GET /friend/가 들어왔을 때 
 router.get('/', function(req, res, next) {
   res.render('index', { title: 'friends' });
 });
-
+*/
 
 // 친구 목록 검색
 router.get('/friend/list', verifyMiddleWare, async (req, res, next) => {
