@@ -148,8 +148,8 @@ router.delete('/signout', verifyMiddleWare, async  (req, res, next) => {
 });
 
 router.patch('/change', verifyMiddleWare, async (req, res, next) => { 
-  const {ierd} = req.decoded;
-  const {id, state_message, place} = req.body;
+  const {id} = req.decoded;
+  const {state_message, place} = req.body;
   const state_message_regex = /^[ㄱ-ㅎ|가-힣|a-z|A-Z]{1,20}$/;
 
   if (!state_message_regex.test(state_message)){
