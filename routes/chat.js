@@ -37,17 +37,21 @@ function sqlToJsDate(sqlDate) {
 function timeout(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
-async function sleepDelete(id, targetId, time, rendezvousTime, req) {
+async function sleepExpire(id, targetId, time, rendezvousTime, req) {
   await timeout(rendezvousTime * 60 * 1000);
-  deleteRendezvous(id, targetId, time, req);
+  expireRendezvous(id, targetId, time, req);
 }
 
-const deleteRendezvous = async (id, targetId, time, req) => {
-  await query(`DELETE FROM message WHERE sender_id = '${id}' and receiver_id = '${targetId}' and time = '${time}';`)
+const expireRendezvous = async (id, targetId, time, req) => {
+  await query(`UPDATE message	SET is_expired = 1 where sender_id = '${id}' AND receiver_id = '${targetId}' AND time = '${time}';`)
+  context = "시간이 만료된 랑데부 메시지입니다.";
+  var encrypted = CryptoJS.AES.encrypt(JSON.stringify(context), secretKey).toString();
+  await query(`UPDATE message	SET context = '${encrypted}' where sender_id = '${id}' AND receiver_id = '${targetId}' AND time = '${time}';`)
+
   const io = req.app.get('io');
   const targetSockets = findSocketById(io, targetId);
   if (targetSockets.length > 0) {
-    targetSockets.forEach(soc => soc.emit('EXPIRE_MESSAGE', { // emit: 보낸이, 받는이 모두에게 랑데부 메세지 삭제 알림. 
+    targetSockets.forEach(soc => soc.emit('EXPIRE_MESSAGE', { // emit: 받는이에게 랑데부 메세지 만료 알림. 
       sender_id: id,
       receiver_id: targetId,
       time: time
@@ -55,7 +59,7 @@ const deleteRendezvous = async (id, targetId, time, req) => {
   }
   const targetSockets2 = findSocketById(io, id);
   if (targetSockets2.length > 0) {
-    targetSockets2.forEach(soc => soc.emit('EXPIRE_MESSAGE', { // emit: 보낸이, 받는이 모두에게 랑데부 메세지 삭제 알림. 
+    targetSockets2.forEach(soc => soc.emit('EXPIRE_MESSAGE', { // emit: 보낸이에게 랑데부 메세지 만료 알림. 
       sender_id: id,
       receiver_id: targetId,
       time: time
@@ -172,7 +176,7 @@ router.post('/rendezvous/:id', verifyMiddleWare, async (req, res, next) => {
       await query(`INSERT INTO message(sender_id, receiver_id, context, time, room_id, is_rendezvous, rendezvous_place, expired_time) 
       SELECT f.id, t.id, '${encrypted}','${time}', '${roomId}', 1, '${rendezvousPlace}', '${expiredSqlTime}'
       FROM user f, user t WHERE f.id = '${id}' and t.id = '${targetId}';`)
-      sleepDelete(id, targetId, time, rendezvous_time, req);
+      sleepExpire(id, targetId, time, rendezvous_time, req);
       const targetSockets = findSocketById(io, targetId);
       if (targetSockets.length > 0) {
         targetSockets.forEach(soc => soc.emit('RESPONSE_MESSAGE', {
