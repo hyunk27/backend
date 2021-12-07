@@ -13,33 +13,6 @@ router.get('/', function(req, res, next) {
 });
 
 
-// 친구 검색
-router.get('/friend/:id_name', verifyMiddleWare, async (req, res, next) => {
-  try{
-    const {id_name}= req.params;
-        
-    const user = await query(`SELECT * FROM user WHERE name LIKE '%"${id_name}"%'`);
-    const user2 = await query(`SELECT * FROM user WHERE id LIKE '%"${id_name}"%'`);
-  
-    console.log(user);
-    console.log(user2);
-  
-    res.json({
-      status: 200,
-      message: '친구 검색 성공',
-      data: user              
-    });
-
-  } catch (error) {
-    res.json({
-      status:400,
-      message: '친구 검색 실패',
-      error
-    });
-  }
-  
-});
-
 // 친구 목록 검색
 router.get('/friend/list', verifyMiddleWare, async (req, res, next) => {
   const {id} = req.decoded;
@@ -88,6 +61,34 @@ router.get('/friend/add/:id', verifyMiddleWare, async (req, res, next) => {
     });
   }
 });
+
+// 친구 검색
+router.get('/friend/:id_name', verifyMiddleWare, async (req, res, next) => {
+  try{
+    const {id_name}= req.params;
+        
+    const user = await query(`SELECT * FROM user WHERE name LIKE '%"${id_name}"%'`);
+    const user2 = await query(`SELECT * FROM user WHERE id LIKE '%"${id_name}"%'`);
+  
+    console.log(user);
+    console.log(user2);
+  
+    res.json({
+      status: 200,
+      message: '친구 검색 성공',
+      data: user              
+    });
+
+  } catch (error) {
+    res.json({
+      status:400,
+      message: '친구 검색 실패',
+      error
+    });
+  }
+  
+});
+
 
 // 친구 삭제 
 router.delete('/friend/:id', verifyMiddleWare, async (req, res, next) => {
