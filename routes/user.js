@@ -28,7 +28,9 @@ router.post('/login', async (req, res, next) => {
       name: get_password[0].name
     });
     res.cookie('token', jwt, {
-      httpOnly: false,
+      httpOnly: true,
+      sameSite: 'none',
+      secure: true,
       expires: new Date( Date.now() + 60 * 60 * 1000 * 24 * 7) // 7일 후 만료
     }).json({
       status: 200,
@@ -51,6 +53,24 @@ router.get('/whoAmI', verifyMiddleWare, (req, res, next) => {
     res.json({
       success: false,
       message: 'Authentication is required'
+    });
+  }
+});
+
+router.get('/:id', verifyMiddleWare, async (req, res) => {
+  const { id } = req.params;
+  const queryResult = await query(`SELECT * from user where id = '${id}'`);
+  if (queryResult.length === 0) {
+    res.json({
+      status: 404,
+      errorMessage: '회원이 없습니다',
+    });
+  } else {
+    const { id, name, type } = queryResult[0];
+    res.json({
+      status: 200,
+      message: '회원 정보가 존재합니다.',
+      id, name, type,
     });
   }
 });
