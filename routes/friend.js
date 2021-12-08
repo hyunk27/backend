@@ -16,10 +16,10 @@ router.get('/', function(req, res, next) {
 router.get('/list', verifyMiddleWare, async (req, res, next) => {
   const {id} = req.decoded;
         
-  const me = await query(`SELECT * FROM user WHERE id = '${id}'`);
-  const users = await query(`SELECT * FROM user WHERE id IN (SELECT friend_id FROM friend WHERE id = '${id}')`);
-
   try {
+    const me = await query(`SELECT * FROM user WHERE id = '${id}'`);
+    const users = await query(`SELECT * FROM user WHERE id IN (SELECT friend_id FROM friend WHERE id = '${id}')`);
+  
     res.json({
       status: 200,
       message: '친구 검색 성공',                   
@@ -40,13 +40,16 @@ router.get('/add/:id', verifyMiddleWare, async (req, res, next) => {
   const {id} = req.decoded;
   const {targetId}= req.params;
 
-  const queryResult = await query(`INSERT INTO friend VALUES('${id}', '${targetId}')`);          
-  const user = await query(`SELECT * FROM friend WHERE targetId = '${id}'`);
-
-  console.log(queryResult);
-  console.log(user);
-
+  console.log(id, targetId)
+  
   try {
+    const queryResult = await query(`INSERT INTO friend VALUES('${id}', '${targetId}')`);          
+    const user = await query(`SELECT * FROM friend WHERE targetId = '${id}'`);
+
+
+    console.log(queryResult);
+    console.log(user);
+
     res.json({
       status: 200,
       message: '친구 추가 성공',
@@ -63,9 +66,9 @@ router.get('/add/:id', verifyMiddleWare, async (req, res, next) => {
 
 // 친구 검색
 router.get('/:id_name', verifyMiddleWare, async (req, res, next) => {
+  const {id_name}= req.params;
+
   try{
-    const {id_name}= req.params;
-        
     const user = await query(`SELECT * FROM user WHERE name LIKE '%"${id_name}"%'`);
     const user2 = await query(`SELECT * FROM user WHERE id LIKE '%"${id_name}"%'`);
   
@@ -94,10 +97,12 @@ router.delete('/:id', verifyMiddleWare, async (req, res, next) => {
   const {id} = req.decoded;
   const {targetId}= req.params;
 
-  const queryResult = await query(`DELETE FROM friend where id = '${id}' AND friend_id = '${targetId}'`);
-  console.log(queryResult);
+
 
   try {
+    const queryResult = await query(`DELETE FROM friend where (id = '${id}' AND friend_id = '${targetId}') OR (friend_id = '${id}' AND id = '${targetId}')`);
+    console.log(queryResult);
+    
     res.json({
       status: 200,
       message: '친구 삭제 성공',

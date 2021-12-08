@@ -8,6 +8,8 @@ var secretKey = 'secret key';
 router.post('/login', async (req, res, next) => {
   const { id, password } = req.body;
   
+  console.log(req.body);
+
   const get_password = await query(`SELECT * from user where id = '${id}';`);
   let decrpyted = CryptoJS.AES.decrypt(get_password[0].password, secretKey);
   var password_dec = JSON.parse(decrpyted.toString(CryptoJS.enc.Utf8));
