@@ -27,7 +27,7 @@ router.get('/', verifyMiddleWare, async (req, res, next) => {
   for (let i = 0; i < listQueryResult.length; i++) {
     let encryptedContext = listQueryResult[i].context;
     var bytes = CryptoJS.AES.decrypt(encryptedContext, secretKey);
-    listQueryResult[i].context = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
+    listQueryResult[i].context = bytes.toString(CryptoJS.enc.Utf8);
   }
   try {
     res.json({
