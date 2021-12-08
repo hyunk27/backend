@@ -20,11 +20,11 @@ router.get('/', verifyMiddleWare, async (req, res, next) => {
   try {
 
     const listQueryResult = await query(`
-    (SELECT u.id, u.name, u.type, u.online, m.context, m.time
+    (SELECT u.id, u.name, u.type, u.online, m.context, m.time, m.room_id
     FROM user AS u, message AS m, room AS r
     WHERE r.user1_id = '${id}' AND m.room_id = r.room_id AND 
     time IN (SELECT max(time) FROM message AS m1 WHERE m1.room_id=r.room_id) AND r.user2_id = u.id) UNION
-    (SELECT u.id, u.name, u.type, u.online, m.context, m.time
+    (SELECT u.id, u.name, u.type, u.online, m.context, m.time, m.room_id
     FROM user AS u, message AS m, room AS r
     WHERE r.user2_id = '${id}' AND m.room_id = r.room_id AND 
     time IN (SELECT max(time) FROM message AS m1 WHERE m1.room_id=r.room_id) AND r.user1_id = u.id)
