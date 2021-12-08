@@ -9,24 +9,24 @@ router.post('/login', async (req, res, next) => {
   const { id, password } = req.body;
   
   console.log(req.body);
-
+  // login할 떄 아이디만 검색, 암호화된 id 찾기 위해 id만 검색
   const get_password = await query(`SELECT * from user where id = '${id}';`);
-  let decrpyted = CryptoJS.AES.decrypt(get_password[0].password, secretKey);
-  var password_dec = JSON.parse(decrpyted.toString(CryptoJS.enc.Utf8));
 
   if (get_password.length ==0) {
     res.json({
       statsu: 400,
       message: 'Incorrect ID'
     });
-  } else if (password != password_dec) {
+  } else {
+    let decrpyted = CryptoJS.AES.decrypt(get_password[0].password, secretKey);
+    var password_dec = JSON.parse(decrpyted.toString(CryptoJS.enc.Utf8));
+    if (password != password_dec) {
     res.json({
       status: 400,
       message: 'Incorrect password'
     });
   } else {
-
-    //online으로 바꾸기 
+    //login할 떄 자동으로 online으로 바꾸기 
     const result = await query(`UPDATE user SET online = 1 where id = '${id}';`);
 
 
@@ -45,11 +45,13 @@ router.post('/login', async (req, res, next) => {
       name: get_password[0].name
     });
   }
+}
 });
 
 router.get('/whoAmI', verifyMiddleWare, async (req, res, next) => {
   const { id, name } = req.decoded;
   if (id) {
+    // id로 인증
     const queryResult = await query(`SELECT * from user where id = '${id}'`);
     res.json({
       success: true,
@@ -68,6 +70,7 @@ router.get('/whoAmI', verifyMiddleWare, async (req, res, next) => {
 
 router.get('/:id', verifyMiddleWare, async (req, res) => {
   const { id } = req.params;
+  // id 중복하기 위한 결과 추출
   const queryResult = await query(`SELECT * from user where id = '${id}'`);
   if (queryResult.length === 0) {
     res.json({
@@ -88,6 +91,7 @@ router.patch('/logout', verifyMiddleWare, async (req, res, next) => {
   const {id} = req.decoded;
 
   if (id){
+    // logout하면 오프라인으로 변경
     await query(`UPDATE user SET online = 0 where id = '${id}'`)
     res.clearCookie('token').json({
       status: 200,
@@ -133,6 +137,7 @@ router.post('/signin', async (req, res, next) => {
       });
     } else {
       var encrypted = CryptoJS.AES.encrypt(JSON.stringify(password), secretKey).toString();
+      // 회원가입할 때 입력한 값(비밀번호는 암호화 이후), 초기 세팅 값 설정
       await query(`INSERT INTO user(id, password, name, type, online) VALUES('${id}', '${encrypted}', '${name}', '${type}', 0)`);
 
       res.json({
@@ -145,6 +150,7 @@ router.post('/signin', async (req, res, next) => {
 
 router.get('/signin/:id', verifyMiddleWare, async (req, res, next) => {
   const {id} = req.params;
+  // id 중복확인
   const queryResult = await query(`SELECT * from user where id = '${id}'`);
   if (queryResult.length > 0) {
     res.json({
@@ -162,6 +168,7 @@ router.get('/signin/:id', verifyMiddleWare, async (req, res, next) => {
 router.delete('/signout', verifyMiddleWare, async  (req, res, next) => {
   const {id, name} = req.decoded;
   if (id){
+    // 회원탈퇴할때 id 매칭해서 삭제
     await query(`DELETE FROM user where id = '${id}'`);
     res.json(
       {
@@ -187,6 +194,7 @@ router.patch('/change', verifyMiddleWare, async (req, res, next) => {
       message: '상태메세지는 최대 20자까지입니다.'
     });
   } else {
+    // 회원정보 수정
     await query(`UPDATE user SET state_message='${state_message}', place='${place}' where id = '${id}'`)
     res.json(
       {

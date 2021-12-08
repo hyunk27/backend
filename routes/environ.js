@@ -11,6 +11,7 @@ router.get('/', function(req, res, next) {
 router.get('/:place', verifyMiddleWare, async (req, res, next) => {
   try{
     const {place} = req.params
+    // 각
     const users = await query(`SELECT * FROM user WHERE place = '${place}'`)
 
     if (users.length>0){
