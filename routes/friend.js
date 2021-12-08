@@ -40,7 +40,7 @@ router.get('/list', verifyMiddleWare, async (req, res, next) => {
 // 친구 추가 (test done)
 router.get('/add/:id', verifyMiddleWare, async (req, res, next) => {
   const {id} = req.decoded;
-  const {id:targetId}= //req.params;
+  const {id:targetId}= req.params;
 
   console.log(id, targetId)
   
