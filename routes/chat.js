@@ -53,7 +53,7 @@ async function sleepExpire(id, targetId, time, rendezvousTime, req) {
 const expireRendezvous = async (id, targetId, time, req) => {
   await query(`UPDATE message	SET is_expired = 1 where sender_id = '${id}' AND receiver_id = '${targetId}' AND time = '${time}';`)
   context = "시간이 만료된 랑데부 메시지입니다.";
-  var encrypted = CryptoJS.AES.encrypt(JSON.stringify(context), secretKey).toString();
+  var encrypted = CryptoJS.AES.encrypt(context, secretKey).toString();
   await query(`UPDATE message	SET context = '${encrypted}' where sender_id = '${id}' AND receiver_id = '${targetId}' AND time = '${time}';`)
 
   const io = req.app.get('io');
@@ -129,7 +129,8 @@ router.post('/rendezvous/:id', verifyMiddleWare, async (req, res, next) => {
   const targetId = req.params.id;
   if (id) {
     const io = req.app.get('io');
-    const { context, time, rendezvous_time } = req.body;
+    const { context, rendezvous_time } = req.body;
+    const time = new Date().toISOString().slice(0, 19).replace('T', ' ');
     const queryResultPlace = await query(`SELECT place FROM user WHERE id = '${id}'`)
     const rendezvousPlace = queryResultPlace[0].place;
     let expiredTime = sqlToJsDate(time);
@@ -141,7 +142,7 @@ router.post('/rendezvous/:id', verifyMiddleWare, async (req, res, next) => {
       const senderQuery = await query(`SELECT name FROM user WHERE id = '${id}'`);
       const senderName = senderQuery[0].name;
       const roomId = await findRoom(id, targetId);
-      var encrypted = CryptoJS.AES.encrypt(JSON.stringify(context), secretKey).toString();
+      var encrypted = CryptoJS.AES.encrypt(context, secretKey).toString();
       await query(`INSERT INTO message(sender_id, receiver_id, context, time, room_id, is_rendezvous, rendezvous_place, expired_time) 
       SELECT f.id, t.id, '${encrypted}','${time}', '${roomId}', 1, '${rendezvousPlace}', '${expiredSqlTime}'
       FROM user f, user t WHERE f.id = '${id}' and t.id = '${targetId}';`)
