@@ -12,10 +12,12 @@ router.get('/', function(req, res, next) {
 });
 
 
-// 친구 목록 검색
+// 친구 목록 검색 (test done)
 router.get('/list', verifyMiddleWare, async (req, res, next) => {
   const {id} = req.decoded;
         
+  console.log(req.body)
+
   try {
     const me = await query(`SELECT * FROM user WHERE id = '${id}'`);
     const users = await query(`SELECT * FROM user WHERE id IN (SELECT friend_id FROM friend WHERE id = '${id}')`);
@@ -35,16 +37,16 @@ router.get('/list', verifyMiddleWare, async (req, res, next) => {
   
 });
 
-// 친구 추가
+// 친구 추가 (test done)
 router.get('/add/:id', verifyMiddleWare, async (req, res, next) => {
   const {id} = req.decoded;
-  const {targetId}= req.params;
+  const {id:targetId}= //req.params;
 
   console.log(id, targetId)
   
   try {
     const queryResult = await query(`INSERT INTO friend VALUES('${id}', '${targetId}')`);          
-    const user = await query(`SELECT * FROM friend WHERE targetId = '${id}'`);
+    const user = await query(`SELECT * FROM user WHERE id = '${targetId}'`);
 
 
     console.log(queryResult);
@@ -64,16 +66,18 @@ router.get('/add/:id', verifyMiddleWare, async (req, res, next) => {
   }
 });
 
-// 친구 검색
+// 친구 검색 (test done)
 router.get('/:id_name', verifyMiddleWare, async (req, res, next) => {
+  const {id} = req.decoded;
   const {id_name}= req.params;
 
+  console.log(req.decoded);
+
+
   try{
-    const user = await query(`SELECT * FROM user WHERE name LIKE '%"${id_name}"%'`);
-    const user2 = await query(`SELECT * FROM user WHERE id LIKE '%"${id_name}"%'`);
+    const user = await query(`SELECT * FROM user WHERE (id LIKE '%${id_name}%' OR name LIKE '%${id_name}%') AND id != '${id}'`);
   
-    console.log(user);
-    console.log(user2);
+    // console.log(user);
   
     res.json({
       status: 200,
@@ -92,11 +96,13 @@ router.get('/:id_name', verifyMiddleWare, async (req, res, next) => {
 });
 
 
-// 친구 삭제 
+// 친구 삭제 (test done)
 router.delete('/:id', verifyMiddleWare, async (req, res, next) => {
   const {id} = req.decoded;
-  const {targetId}= req.params;
+  const {id:targetId}= req.params;
 
+  // const id = 'jiwon1234';
+  // const targetId= '4';
 
 
   try {
@@ -106,7 +112,7 @@ router.delete('/:id', verifyMiddleWare, async (req, res, next) => {
     res.json({
       status: 200,
       message: '친구 삭제 성공',
-      data: targetId              // json 형식으로 다시 보낼 필요성 검토
+      data: {id:targetId}              
     });
   } catch (error) {
     res.json({

@@ -25,6 +25,11 @@ router.post('/login', async (req, res, next) => {
       message: 'Incorrect password'
     });
   } else {
+
+    //online으로 바꾸기 
+    const result = await query(`UPDATE user SET online = 1 where id = '${id}';`);
+
+
     const jwt = sign({
       id,
       name: get_password[0].name
@@ -81,7 +86,7 @@ router.patch('/logout', verifyMiddleWare, async (req, res, next) => {
   const {id} = req.decoded;
 
   if (id){
-    await query(`UPDATE user SET online = 1 where id = '${id}'`)
+    await query(`UPDATE user SET online = 0 where id = '${id}'`)
     res.clearCookie('token').json({
       status: 200,
       message: '로그아웃 성공'
