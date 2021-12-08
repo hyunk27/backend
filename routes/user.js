@@ -47,14 +47,16 @@ router.post('/login', async (req, res, next) => {
   }
 });
 
-router.get('/whoAmI', verifyMiddleWare, (req, res, next) => {
+router.get('/whoAmI', verifyMiddleWare, async (req, res, next) => {
   const { id, name } = req.decoded;
-
   if (id) {
+    const queryResult = await query(`SELECT * from user where id = '${id}'`);
     res.json({
       success: true,
       id,
       name,
+      place: queryResult[0].place,
+      state_message: queryResult[0].state_message,
     });
   } else {
     res.json({
