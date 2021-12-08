@@ -22,6 +22,15 @@ router.get('/list', verifyMiddleWare, async (req, res, next) => {
     const me = await query(`SELECT * FROM user WHERE id = '${id}'`);
     const users = await query(`SELECT * FROM user WHERE id IN (SELECT friend_id FROM friend WHERE id = '${id}')`);
   
+    // 삭제 
+    for (let i = 0; i < me.length; i++) {
+      delete me[i].password;
+    }
+    // 삭제 
+    for (let i = 0; i < users.length; i++) {
+      delete users[i].password;
+    }
+
     res.json({
       status: 200,
       message: '친구 검색 성공',                   
@@ -49,6 +58,11 @@ router.get('/add/:id', verifyMiddleWare, async (req, res, next) => {
     const user = await query(`SELECT * FROM user WHERE id = '${targetId}'`);
 
 
+    // 삭제 
+    for (let i = 0; i < user.length; i++) {
+      delete user[i].password;
+    }
+
     console.log(queryResult);
     console.log(user);
 
@@ -72,20 +86,37 @@ router.get('/:id_name', verifyMiddleWare, async (req, res, next) => {
   const {id_name}= req.params;
 
   console.log(req.decoded);
-
-
-  try{
-    const user = await query(`SELECT * FROM user WHERE (id LIKE '%${id_name}%' OR name LIKE '%${id_name}%') AND id != '${id}'`);
   
-    // console.log(user);
+  try{
+    const users = await query(`SELECT * FROM user WHERE (id LIKE '%${id_name}%' OR name LIKE '%${id_name}%') AND id != '${id}'`);
+  
+    for (let i = 0; i < users.length; i++) {
+
+      // 친구일 경우 속성 추가
+      const friends = await query(`SELECT * FROM friend WHERE (id = '${users[i].id}' AND friend_id = '${id}') OR (id = '${id}' AND friend_id = '${users[i].id}')`);
+      if (friends.length!=0){   
+        users[i].isFriend = 1;
+      }else{
+        users[i].isFriend = 0;
+      }
+
+      // 삭제 
+      delete users[i].password;
+
+      
+      console.log(users[i])
+
+    }
   
     res.json({
       status: 200,
       message: '친구 검색 성공',
-      data: user              
+      data: users              
     });
 
   } catch (error) {
+    console.log(error)
+
     res.json({
       status:400,
       message: '친구 검색 실패',
