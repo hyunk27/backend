@@ -18,7 +18,7 @@ router.get('/', verifyMiddleWare, async (req, res, next) => {
 
 
   try {
-
+    // 유저 id 검색하여 이 유저와 채팅 중인 유저의 정보와 채팅 메세지 관련 정보 추출
     const listQueryResult = await query(`
     (SELECT u.id, u.name, u.type, u.online, m.context, m.time, m.room_id
     FROM user AS u, message AS m, room AS r

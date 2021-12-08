@@ -19,6 +19,7 @@ router.get('/list', verifyMiddleWare, async (req, res, next) => {
   console.log(req.body)
 
   try {
+    // 친구목록 검색, 자신의 정보와 친구유저 정보 추출
     const me = await query(`SELECT * FROM user WHERE id = '${id}'`);
     const users = await query(`SELECT * FROM user WHERE id IN (SELECT friend_id FROM friend WHERE id = '${id}')`);
   
@@ -54,6 +55,7 @@ router.get('/add/:id', verifyMiddleWare, async (req, res, next) => {
   console.log(id, targetId)
   
   try {
+    // 친구 추가
     const queryResult = await query(`INSERT INTO friend VALUES('${id}', '${targetId}')`);          
     const user = await query(`SELECT * FROM user WHERE id = '${targetId}'`);
 
@@ -88,6 +90,7 @@ router.get('/:id_name', verifyMiddleWare, async (req, res, next) => {
   console.log(req.decoded);
   
   try{
+    // id와 이름 parameter로 검색
     const users = await query(`SELECT * FROM user WHERE (id LIKE '%${id_name}%' OR name LIKE '%${id_name}%') AND id != '${id}'`);
   
     for (let i = 0; i < users.length; i++) {
@@ -137,6 +140,7 @@ router.delete('/:id', verifyMiddleWare, async (req, res, next) => {
 
 
   try {
+    // 친구 삭제
     const queryResult = await query(`DELETE FROM friend where (id = '${id}' AND friend_id = '${targetId}') OR (friend_id = '${id}' AND id = '${targetId}')`);
     console.log(queryResult);
     
