@@ -21,7 +21,7 @@ const findRoom = async (senderId, receiverId) => {
   const roomId = await query(`SELECT r.room_id FROM room r WHERE(r.user1_id = '${senderId}' AND r.user2_id = '${receiverId}') OR
   (r.user2_id = '${receiverId}' AND r.user1_id ='${senderId}')`);
   if (roomId.length === 0) {
-    //두 명의 id를 바탕으로 room id를 찾는 쿼리
+    //room이 아직 안만들었으면 다시 만들고, 다시 roomId 찾음
     await query(`INSERT INTO room(user1_id,user2_id) VALUES( '${senderId}', '${receiverId}');`);
     const roomId2 = await query(`SELECT r.room_id FROM room r WHERE(r.user1_id = '${senderId}' AND r.user2_id = '${receiverId}') OR
     (r.user2_id = '${receiverId}' AND r.user1_id ='${senderId}')`);
@@ -54,6 +54,7 @@ async function sleepExpire(id, targetId, time, rendezvousTime, req) {
 }
 
 const expireRendezvous = async (id, targetId, time, req) => {
+
   await query(`UPDATE message	SET is_expired = 1 where sender_id = '${id}' AND receiver_id = '${targetId}' AND time = '${time}';`)
   context = "시간이 만료된 랑데부 메시지입니다.";
   var encrypted = CryptoJS.AES.encrypt(context, secretKey).toString();
