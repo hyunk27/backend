@@ -16,9 +16,12 @@ const findSocketById = (io, id) => {
 };
 
 const findRoom = async (senderId, receiverId) => {
+  
+  //두 명의 id를 바탕으로 room id를 찾는 쿼리
   const roomId = await query(`SELECT r.room_id FROM room r WHERE(r.user1_id = '${senderId}' AND r.user2_id = '${receiverId}') OR
   (r.user2_id = '${receiverId}' AND r.user1_id ='${senderId}')`);
-  if (roomId === 0) {
+  if (roomId.length === 0) {
+    //두 명의 id를 바탕으로 room id를 찾는 쿼리
     await query(`INSERT INTO room(user1_id,user2_id) VALUES( '${senderId}', '${receiverId}');`);
     const roomId2 = await query(`SELECT r.room_id FROM room r WHERE(r.user1_id = '${senderId}' AND r.user2_id = '${receiverId}') OR
     (r.user2_id = '${receiverId}' AND r.user1_id ='${senderId}')`);
