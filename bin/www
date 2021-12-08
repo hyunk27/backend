@@ -44,7 +44,8 @@
 	 },
 	 allowEIO3: true,
 	 cookie: {
-		 httpOnly: true
+		 httpOnly: true,
+		 sameSite: 'None',
 	 }
  }));
  
@@ -105,6 +106,6 @@
 	 const bind = typeof addr === 'string'
 		 ? 'pipe ' + addr
 		 : 'port ' + addr.port;
-	 debug('Listening on ' + bind);
+	 console.log('Listening on ' + bind);
  }
  
