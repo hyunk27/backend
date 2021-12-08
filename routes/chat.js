@@ -18,7 +18,15 @@ const findSocketById = (io, id) => {
 const findRoom = async (senderId, receiverId) => {
   const roomId = await query(`SELECT r.room_id FROM room r WHERE(r.user1_id = '${senderId}' AND r.user2_id = '${receiverId}') OR
   (r.user2_id = '${receiverId}' AND r.user1_id ='${senderId}')`);
-  return roomId[0].room_id;
+  if (roomId === 0) {
+    await query(`INSERT INTO room(user1_id,user2_id) VALUES( '${senderId}', '${receiverId}');`);
+    const roomId2 = await query(`SELECT r.room_id FROM room r WHERE(r.user1_id = '${senderId}' AND r.user2_id = '${receiverId}') OR
+    (r.user2_id = '${receiverId}' AND r.user1_id ='${senderId}')`);
+    return roomId2[0].room_id;
+  }
+  else {
+    return roomId[0].room_id;
+  }
 }
 
 function sqlToJsDate(sqlDate) {
@@ -92,13 +100,19 @@ router.get('/chatData/:id', verifyMiddleWare, async (req, res, next) => {
       messages[i].context = bytes.toString(CryptoJS.enc.Utf8);
     }
     if (messages === 0) {
-      await query(`INSERT INTO room(user1_id,user2_id) VALUES( '${id}', '${targetId}');`);
+      res.json({
+        status: 200,
+        message: "채팅 기록 불러오기 성공(채팅 기록이 없습니다)",
+        data: messages
+      });
     }
-    res.json({
-      status: 200,
-      message: "채팅 기록 불러오기 성공",
-      data: messages
-    });
+    else {
+      res.json({
+        status: 200,
+        message: "채팅 기록 불러오기 성공",
+        data: messages
+      });
+    }
   } else {
     res.json({
       status: 400,
