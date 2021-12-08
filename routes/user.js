@@ -133,7 +133,7 @@ router.post('/signin', async (req, res, next) => {
       });
     } else {
       var encrypted = CryptoJS.AES.encrypt(JSON.stringify(password), secretKey).toString();
-      await query(`INSERT INTO user(id, password, name, type) VALUES('${id}', '${encrypted}', '${name}', '${type}')`);
+      await query(`INSERT INTO user(id, password, name, type, online) VALUES('${id}', '${encrypted}', '${name}', '${type}', 0)`);
 
       res.json({
         status:200,
