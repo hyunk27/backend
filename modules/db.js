@@ -19,7 +19,7 @@ const connection = mysql.createPool({
     user: process.env.DB_USER || "team05",
     password: process.env.DB_PASSWORD || "password05@@", // 이전에 입력했던 비밀번호
     database: process.env.DB_NAME || "database05", // 이전에 입력했던 데이터베이스 명
-    port: 53306,
+    port: process.env.DB_PORT || 3306,
     multipleStatements: true,
     connectionLimit: 1000,
     dateStrings: "date",
