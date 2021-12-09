@@ -31,7 +31,7 @@
  server.on('error', onError);
  server.on('listening', () => onListening(server));
  
- socket.listen(4000);
+ socket.listen(process.env.SOCKET_PORT || '8502');
  socket.on('error', onError);
  socket.on('listening', () => onListening(socket));
  

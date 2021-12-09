@@ -19,12 +19,12 @@ const findRoom = async (senderId, receiverId) => {
   
   //두 명의 id를 바탕으로 room id를 찾는 쿼리
   const roomId = await query(`SELECT r.room_id FROM room r WHERE(r.user1_id = '${senderId}' AND r.user2_id = '${receiverId}') OR
-  (r.user2_id = '${receiverId}' AND r.user1_id ='${senderId}')`);
+  (r.user1_id = '${receiverId}' AND r.user2_id ='${senderId}')`);
   if (roomId.length === 0) {
     //room이 아직 안만들었으면 다시 만들고, 다시 roomId 찾음
     await query(`INSERT INTO room(user1_id,user2_id) VALUES( '${senderId}', '${receiverId}');`);
     const roomId2 = await query(`SELECT r.room_id FROM room r WHERE(r.user1_id = '${senderId}' AND r.user2_id = '${receiverId}') OR
-    (r.user2_id = '${receiverId}' AND r.user1_id ='${senderId}')`);
+    (r.user1_id = '${receiverId}' AND r.user2_id ='${senderId}')`);
     return roomId2[0].room_id;
   }
   else {
@@ -176,7 +176,7 @@ router.post('/rendezvous/:id', verifyMiddleWare, async (req, res, next) => {
     else { //공간이 달라서 랑데부메세지가 전송되지 않았음을 알림. 전송이 안되면 db에 일단 안올리는 것으로 구현.
       //다시 채팅방 들어오면 아예 보냈던 기록조차 보이지 않음. 
       res.json({
-        status: 200,
+        status: 400,
         message: "랑데부 공간 차이로 메세지가 전송되지 않았습니다.",
       });
     }
