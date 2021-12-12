@@ -16,7 +16,7 @@ const findSocketById = (io, id) => {
 };
 
 const findRoom = async (senderId, receiverId) => {
-  
+
   //두 명의 id를 바탕으로 room id를 찾는 쿼리
   const roomId = await query(`SELECT r.room_id FROM room r WHERE(r.user1_id = '${senderId}' AND r.user2_id = '${receiverId}') OR
   (r.user1_id = '${receiverId}' AND r.user2_id ='${senderId}')`);
@@ -134,51 +134,62 @@ router.post('/rendezvous/:id', verifyMiddleWare, async (req, res, next) => {
   if (id) {
     const io = req.app.get('io');
     const { context, rendezvous_time } = req.body;
-    const time = new Date().toISOString().slice(0, 19).replace('T', ' ');
+    let newDate = new Date();
+    newDate.setHours(newDate.getHours() + 9)
+    const time = newDate.toISOString().slice(0, 19).replace('T', ' ');
     const queryResultPlace = await query(`SELECT place FROM user WHERE id = '${id}'`)
-    const rendezvousPlace = queryResultPlace[0].place;
-    let expiredTime = sqlToJsDate(time);
-    expiredTime.setHours(expiredTime.getHours() + 9) // 왜인진 모르겠는데 시간이 다시 올라가야합니다. 시간이 +-9시간 오차가 발생하면 말씀해주세요.  
-    expiredTime.setMinutes(expiredTime.getMinutes() + rendezvous_time)
-    const expiredSqlTime = expiredTime.toISOString().slice(0, 19).replace('T', ' ');
-    const queryResult = await query(`SELECT * from user where id = '${targetId}' and place = '${rendezvousPlace}'`);
-    if (queryResult.length > 0) {
-      const senderQuery = await query(`SELECT name FROM user WHERE id = '${id}'`);
-      const senderName = senderQuery[0].name;
-      const roomId = await findRoom(id, targetId);
-      var encrypted = CryptoJS.AES.encrypt(context, secretKey).toString();
-      await query(`INSERT INTO message(sender_id, receiver_id, context, time, room_id, is_rendezvous, rendezvous_place, expired_time) 
-      SELECT f.id, t.id, '${encrypted}','${time}', '${roomId}', 1, '${rendezvousPlace}', '${expiredSqlTime}'
-      FROM user f, user t WHERE f.id = '${id}' and t.id = '${targetId}';`)
-      sleepExpire(id, targetId, time, rendezvous_time, req);
-      const targetSockets = findSocketById(io, targetId);
-      if (targetSockets.length > 0) {
-        targetSockets.forEach(soc => soc.emit('RESPONSE_MESSAGE', {
-          context: context,
-          from_id: id,
-          from_name: senderName,
-          time: time,
-          rendezvous_place: rendezvousPlace,
-          expired_time: expiredSqlTime,
-        }));
-        res.json({
-          status: 200,
-          message: "랑데부 메세지 전송 성공",
-        });
-      }
-      else {
-        res.json({
-          status: 200,
-          message: "채팅 전송을 시도하였으나 타겟 소켓을 찾을 수 없습니다. 채팅이 DB에만 저장되었습니다. ",
-        });
-      }
-    }
-    else { //공간이 달라서 랑데부메세지가 전송되지 않았음을 알림. 전송이 안되면 db에 일단 안올리는 것으로 구현.
-      //다시 채팅방 들어오면 아예 보냈던 기록조차 보이지 않음. 
+    if (queryResultPlace.length === 0) {
       res.json({
         status: 400,
-        message: "랑데부 공간 차이로 메세지가 전송되지 않았습니다.",
+        message: "랑데부 공간 차이로 메세지가 전송되지 않았습니다.", // 유저가 공간 정보가 없을 때입니다. 
       });
+    }
+    else {
+      const rendezvousPlace = queryResultPlace[0].place;
+      let expiredTime = newDate;
+      //expiredTime.setHours(expiredTime.getHours() + 9) // 왜인진 모르겠는데 시간이 다시 올라가야합니다. 시간이 +-9시간 오차가 발생하면 말씀해주세요.  
+      expiredTime.setMinutes(expiredTime.getMinutes() + rendezvous_time)
+      const expiredSqlTime = expiredTime.toISOString().slice(0, 19).replace('T', ' ');
+      const queryResult = await query(`SELECT * from user where id = '${targetId}' and place = '${rendezvousPlace}'`);
+      if (queryResult.length > 0) {
+        const senderQuery = await query(`SELECT name FROM user WHERE id = '${id}'`);
+        const senderName = senderQuery[0].name;
+        const roomId = await findRoom(id, targetId);
+        var encrypted = CryptoJS.AES.encrypt(context, secretKey).toString();
+        await query(`INSERT INTO message(sender_id, receiver_id, context, time, room_id, is_rendezvous, rendezvous_place, expired_time) 
+      SELECT f.id, t.id, '${encrypted}','${time}', '${roomId}', 1, '${rendezvousPlace}', '${expiredSqlTime}'
+      FROM user f, user t WHERE f.id = '${id}' and t.id = '${targetId}';`)
+        sleepExpire(id, targetId, time, rendezvous_time, req);
+        const targetSockets = findSocketById(io, targetId);
+        if (targetSockets.length > 0) {
+          targetSockets.forEach(soc => soc.emit('RESPONSE_MESSAGE', {
+            context: context,
+            from_id: id,
+            from_name: senderName,
+            time: time,
+            rendezvous_place: rendezvousPlace,
+            expired_time: expiredSqlTime,
+          }));
+          res.json({
+            status: 200,
+            message: "랑데부 메세지 전송 성공",
+          });
+        }
+        else {
+          res.json({
+            status: 200,
+            message: "채팅 전송을 시도하였으나 타겟 소켓을 찾을 수 없습니다. 채팅이 DB에만 저장되었습니다. ",
+          });
+        }
+      }
+
+      else { //공간이 달라서 랑데부메세지가 전송되지 않았음을 알림. 전송이 안되면 db에 일단 안올리는 것으로 구현.
+        //다시 채팅방 들어오면 아예 보냈던 기록조차 보이지 않음. 
+        res.json({
+          status: 400,
+          message: "랑데부 공간 차이로 메세지가 전송되지 않았습니다.",
+        });
+      }
     }
   } else {
     res.json({
@@ -220,7 +231,10 @@ router.post('/:id', verifyMiddleWare, async (req, res, next) => {
   if (id) {
     const io = req.app.get('io');
     const { context } = req.body;
-    const time = new Date().toISOString().slice(0, 19).replace('T', ' ');
+    let newDate = new Date();
+    newDate.setHours(newDate.getHours() + 9)
+    const time = newDate.toISOString().slice(0, 19).replace('T', ' ');
+
     const targetSockets = findSocketById(io, targetId);
     const roomId = await findRoom(id, targetId);
 
