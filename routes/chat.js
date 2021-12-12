@@ -8,10 +8,12 @@ var secretKey = 'secret key';
 const findSocketById = (io, id) => {
   const sockets = [];
   for (let socket of io.sockets.sockets.values()) {
-    if (socket.user_id === id) {
+     if (socket.user_id === id) {
       sockets.push(socket);
+      console.log("socket.user_id: "+socket.user_id )
     }
   }
+  console.log("\n")
   return sockets;
 };
 
