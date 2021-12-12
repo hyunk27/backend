@@ -36,8 +36,8 @@ router.post('/login', async (req, res, next) => {
     });
     res.cookie('token', jwt, {
       httpOnly: true,
-      sameSite: 'none',
-      secure: true,
+      sameSite: 'lax',
+      secure: false,
       expires: new Date( Date.now() + 60 * 60 * 1000 * 24 * 7) // 7일 후 만료
     }).json({
       status: 200,
