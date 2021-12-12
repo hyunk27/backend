@@ -186,7 +186,7 @@ router.delete('/signout', verifyMiddleWare, async  (req, res, next) => {
 router.patch('/change', verifyMiddleWare, async (req, res, next) => { 
   const {id} = req.decoded;
   const {state_message, place} = req.body;
-  const state_message_regex = /^[ㄱ-ㅎ|가-힣|a-z|A-Z]{,20}$/;
+  const state_message_regex = /^[ㄱ-ㅎ|가-힣|a-z|A-Z]{1,20}$/;
 
   if (!state_message_regex.test(state_message)){
     res.json({
@@ -194,6 +194,9 @@ router.patch('/change', verifyMiddleWare, async (req, res, next) => {
       message: '상태메세지는 최대 20자까지입니다.'
     });
   } else {
+    if (state_message.length == 0){
+      state_message = ''
+    };
     // 회원정보 수정
     await query(`UPDATE user SET state_message='${state_message}', place='${place}' where id = '${id}'`)
     res.json(
