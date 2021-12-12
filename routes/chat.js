@@ -162,6 +162,7 @@ router.post('/rendezvous/:id', verifyMiddleWare, async (req, res, next) => {
         sleepExpire(id, targetId, time, rendezvous_time, req);
         const targetSockets = findSocketById(io, targetId);
         if (targetSockets.length > 0) {
+
           targetSockets.forEach(soc => soc.emit('RESPONSE_MESSAGE', {
             context: context,
             from_id: id,
@@ -174,6 +175,15 @@ router.post('/rendezvous/:id', verifyMiddleWare, async (req, res, next) => {
             status: 200,
             message: "랑데부 메세지 전송 성공",
           });
+
+          await query(`UPDATE message	SET state = 1 where sender_id = '${id}' AND receiver_id = '${targetId}' AND state = 0`);
+          const targetSockets2 = findSocketById(io, id);
+          if (targetSockets2.length > 0) {
+            targetSockets2.forEach(soc => soc.emit('READ_MESSAGE', { // emit: id야, targetId가 너가 보낸 메세지 읽었대. 
+              read_id: targetId,
+            }));
+          }
+
         }
         else {
           res.json({
@@ -259,6 +269,13 @@ router.post('/:id', verifyMiddleWare, async (req, res, next) => {
         status: 200,
         message: "채팅 전송 성공",
       });
+      await query(`UPDATE message	SET state = 1 where sender_id = '${id}' AND receiver_id = '${targetId}' AND state = 0`);
+      const targetSockets2 = findSocketById(io, id);
+      if (targetSockets2.length > 0) {
+        targetSockets2.forEach(soc => soc.emit('READ_MESSAGE', { // emit: id야, targetId가 너가 보낸 메세지 읽었대. 
+          read_id: targetId,
+        }));
+      }
     }
     else {
       res.json({
