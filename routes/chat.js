@@ -58,10 +58,6 @@ async function sleepExpire(id, targetId, time, rendezvousTime, req) {
 const expireRendezvous = async (id, targetId, time, req) => {
 
   await query(`UPDATE message	SET is_expired = 1 where sender_id = '${id}' AND receiver_id = '${targetId}' AND time = '${time}';`)
-  context = "시간이 만료된 랑데부 메시지입니다.";
-  var encrypted = CryptoJS.AES.encrypt(context, secretKey).toString();
-  await query(`UPDATE message	SET context = '${encrypted}' where sender_id = '${id}' AND receiver_id = '${targetId}' AND time = '${time}';`)
-
   const io = req.app.get('io');
   const targetSockets = findSocketById(io, targetId);
   if (targetSockets.length > 0) {
