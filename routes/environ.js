@@ -14,7 +14,7 @@ router.get('/:place', verifyMiddleWare, async (req, res, next) => {
     const {id} = req.decoded
     const {place} = req.params
     // place값에 포함된 유저들 정보 추출
-    const users = await query(`SELECT * FROM user WHERE place = ${place} and id !=${id}`)
+    const users = await query(`SELECT * FROM user WHERE place = ${place} and id != '${id}'`)
 
     if (users.length>0){
       res.json({
