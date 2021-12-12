@@ -17,7 +17,6 @@ router.get('/list', verifyMiddleWare, async (req, res, next) => {
   const {id} = req.decoded;
         
   console.log(req.body)
-  console.log(id)
 
   try {
     // 친구목록 검색, 자신의 정보와 친구유저 정보 추출
