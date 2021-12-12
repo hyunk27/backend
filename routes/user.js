@@ -138,7 +138,7 @@ router.post('/signin', async (req, res, next) => {
     } else {
       var encrypted = CryptoJS.AES.encrypt(JSON.stringify(password), secretKey).toString();
       // 회원가입할 때 입력한 값(비밀번호는 암호화 이후), 초기 세팅 값 설정
-      await query(`INSERT INTO user(id, password, name, type, online) VALUES('${id}', '${encrypted}', '${name}', '${type}', 0)`);
+      await query(`INSERT INTO user(id, password, name, type, place ,online) VALUES('${id}', '${encrypted}', '${name}', '${type}',0, 0)`);
 
       res.json({
         status:200,
