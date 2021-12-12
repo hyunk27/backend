@@ -47,7 +47,7 @@ module.exports = io => {
 				socket.leave('online');
 				updateOnlineList(io, 'online');
 				console.log(`LEAVE ONLINE ${socket.user_id}`); 
-				socket.disconnect(); 
+				//socket.disconnect(); 
 			}
 		});
 	});
