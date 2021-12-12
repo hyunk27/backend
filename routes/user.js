@@ -36,8 +36,8 @@ router.post('/login', async (req, res, next) => {
     });
     res.cookie('token', jwt, {
       httpOnly: true,
-      sameSite: 'lax',
-      secure: false,
+      sameSite: 'none',
+      secure: true,
       expires: new Date( Date.now() + 60 * 60 * 1000 * 24 * 7) // 7일 후 만료
     }).json({
       status: 200,
@@ -138,7 +138,7 @@ router.post('/signin', async (req, res, next) => {
     } else {
       var encrypted = CryptoJS.AES.encrypt(JSON.stringify(password), secretKey).toString();
       // 회원가입할 때 입력한 값(비밀번호는 암호화 이후), 초기 세팅 값 설정
-      await query(`INSERT INTO user(id, password, name, type, online) VALUES('${id}', '${encrypted}', '${name}', '${type}', 0)`);
+      await query(`INSERT INTO user(id, password, name, type, place ,online) VALUES('${id}', '${encrypted}', '${name}', '${type}',0, 0)`);
 
       res.json({
         status:200,
@@ -186,7 +186,7 @@ router.delete('/signout', verifyMiddleWare, async  (req, res, next) => {
 router.patch('/change', verifyMiddleWare, async (req, res, next) => { 
   const {id} = req.decoded;
   const {state_message, place} = req.body;
-  const state_message_regex = /^[ㄱ-ㅎ|가-힣|a-z|A-Z]{1,20}$/;
+  const state_message_regex = /^[ㄱ-ㅎ|가-힣|a-z|A-Z]{,20}$/;
 
   if (!state_message_regex.test(state_message)){
     res.json({
